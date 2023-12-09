@@ -1,10 +1,11 @@
 import { readFile } from "fs/promises";
 import path from "path";
-
-export function findNumbersInARow(input: string): Array<{
+type NumberLocation = {
   number: string;
   index: number;
-}> {
+};
+type Vector = [number, number]
+export function findNumbersInARow(input: string): Array<NumberLocation> {
   const matches = Array.from(input.matchAll(/\d+/g))
   return matches.map((el: RegExpMatchArray) => {
     const index = el.index!;
@@ -14,6 +15,21 @@ export function findNumbersInARow(input: string): Array<{
       index: index
     }
   })
+}
+
+export function findPointsAround(location: NumberLocation, rowNumber: number, rowCount: number, colCount: number): Array<Vector> {
+  const result: Array<Vector> = []
+  // up row
+  for (let i = -1; i < location.number.length + 1; i++) {
+    result.push([rowNumber - 1, location.index + i])
+    result.push([rowNumber + 1, location.index + i])
+  }
+  result.push([rowNumber, location.index - 1]);
+  result.push([rowNumber, location.index + 1]);
+
+  return result.filter(([row, col]) => {
+    return row < rowCount && col < colCount && row >= 0 && col >= 0
+  });
 }
 
 async function solve() {
