@@ -1,9 +1,19 @@
 import { readFile } from "fs/promises";
 import path from "path";
 
-export function findNumbersInARow(input: string): Array<[number, number]> {
-  input.matchAll(/\d+/g)
-  return [];
+export function findNumbersInARow(input: string): Array<{
+  number: string;
+  index: number;
+}> {
+  const matches = Array.from(input.matchAll(/\d+/g))
+  return matches.map((el: RegExpMatchArray) => {
+    const index = el.index!;
+    const str = el[0];
+    return {
+      number: str,
+      index: index
+    }
+  })
 }
 
 async function solve() {
