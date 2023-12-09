@@ -1,6 +1,11 @@
 import { readFile } from "fs/promises";
 import path from "path";
 
+export function findNumbersInARow(input: string): Array<[number, number]> {
+  input.matchAll(/\d+/g)
+  return [];
+}
+
 async function solve() {
   const file = path.join(__dirname, './data.txt');
   const data = await readFile(file, { encoding: 'utf8' });
@@ -71,4 +76,4 @@ function checkIfAroundNotSymbols(grid: string[], row: number, startCol: number, 
   return true;
 }
 
-solve();
+// solve();
