@@ -9,8 +9,8 @@ async function solve() {
   const cards = parts.map((part) => [part[0].split(':')[1].trim(), part[1].trim()]);
   let result: number = 0;
   for (let card of cards) {
-    const winningNumbers = card[0].split(' ');
-    const numbersList = card[1].split(' ');
+    const winningNumbers = card[0].split(' ').filter(x => !!x);
+    const numbersList = card[1].split(' ').filter(x => !!x);
     const cardMatches: string[] = [];
     let cardResult: number = 0;
     for (let number of winningNumbers) {
