@@ -7,9 +7,9 @@ async function solve() {
   const mapData = parseData(data);
   const seeds = Object.values(mapData.seeds).flat();
   const locations: number[] = [];
-  for (let seed of seeds) {
-    let source: number = seed;
-    for (const [key, value] of (mapData.maps as Map<string, number[][]>).entries()) {
+
+  for (let source of seeds) {
+    for (const [key, value] of (mapData.maps).entries()) {
       const result = convert(source, key, mapData.maps);
       if (result) {
         source = result;
@@ -17,6 +17,7 @@ async function solve() {
     }
     locations.push(source);
   }
+
   console.log(Math.min(...locations));
 }
 
@@ -60,6 +61,6 @@ function convert(seed: number, key: string, mapData: Map<string, number[][]>) {
 }
 
 interface SeedsData {
-  seeds: Record<'seeds', number[]>,
+  seeds: Record<string, number[]>,
   maps: Map<string, number[][]>
 }
