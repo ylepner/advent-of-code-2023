@@ -2,6 +2,12 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { identifierToKeywordKind } from "typescript";
 
+interface HandData {
+  hand: string,
+  label: number,
+  bid: number,
+}
+
 async function solve() {
   const file = path.join(__dirname, './data.txt');
   const data = parseData(await readFile(file, { encoding: 'utf-8' }));
@@ -19,7 +25,7 @@ function parseData(data: string) {
 }
 
 function identifyHand(cards: string[], bid: string) {
-  const cardCounts: { [key: string]: number } = {}; // Add index signature to cardCounts
+  const cardCounts: { [key: string]: number } = {};
   const labels = new Set();
 
 
@@ -65,11 +71,7 @@ const handStrength = {
   'High card': 7,
 };
 
-interface HandData {
-  hand: string,
-  label: number,
-  bid: number
-}
+
 const cardStrength: { [key: string]: number } = {
   A: 1,
   K: 2,
@@ -78,28 +80,19 @@ const cardStrength: { [key: string]: number } = {
   T: 5,
 };
 
-function getCardStrength(card: string): number {
-  return cardStrength[card[0]];
-}
-
 function sortHands(a: HandData, b: HandData): number {
-  const rankDiff = a.label - b.label;
 
-  if (rankDiff !== 0) {
-    return rankDiff;
+  const labelDiff = a.label - b.label;
+
+  if (labelDiff < 0) {
+    return -1
+  } else if (labelDiff > 0) {
+    return 1
   } else {
-    const strengthA = getCardStrength(a.hand);
-    const strengthB = getCardStrength(b.hand);
-
-    if (strengthA !== strengthB) {
-      return strengthA - strengthB;
-    } else {
-      const firstCardA = cardStrength[a.hand.charAt(0)] || 0;
-      const firstCardB = cardStrength[b.hand.charAt(0)] || 0;
-
-      return firstCardA - firstCardB;
-    }
+    const checkStrength = compareCardsStrength(a.hand, b.hand);
+    return checkStrength;
   }
+
 }
 
 function calculateTotalWinnings(sortedHands: HandData[]): number {
@@ -111,4 +104,18 @@ function calculateTotalWinnings(sortedHands: HandData[]): number {
   }
 
   return totalWinnings;
+}
+
+function compareCardsStrength(handA: string, handB: string) {
+  for (let i = 0; i < handA.length; i++) {
+    const diff = cardStrength[handA[i]] - cardStrength[handB[i]];
+    if (diff === 0) {
+      continue
+    } else if (diff < 0) {
+      return -1
+    } else {
+      return 1
+    }
+  }
+  return 0
 }
