@@ -39,19 +39,19 @@ function identifyHand(cards: string[], bid: string) {
   let cardsString: string = cards.join('');
 
   if (labelCount === '5') {
-    label = 1
+    label = 7
   } else if (labelCount === '41') {
-    label = 2
+    label = 6
   } else if (labelCount === '32') {
-    label = 3
+    label = 5
   } else if (labelCount === '311') {
     label = 4
   } else if (labelCount === '221') {
-    label = 5
+    label = 3
   } else if (labelCount === '2111') {
-    label = 6
+    label = 2
   } else {
-    label = 7
+    label = 1
   }
 
   return {
@@ -62,22 +62,30 @@ function identifyHand(cards: string[], bid: string) {
 }
 
 const handStrength = {
-  'Five of a kind': 1,
-  'Four of a kind': 2,
-  'Full house': 3,
+  'Five of a kind': 7,
+  'Four of a kind': 6,
+  'Full house': 5,
   'Three of a kind': 4,
-  'Two pair': 5,
-  'One pair': 6,
-  'High card': 7,
+  'Two pair': 3,
+  'One pair': 2,
+  'High card': 1,
 };
 
 
 const cardStrength: { [key: string]: number } = {
-  A: 1,
-  K: 2,
-  Q: 3,
-  J: 4,
-  T: 5,
+  A: 13,
+  K: 12,
+  Q: 11,
+  J: 10,
+  T: 9,
+  '9': 8,
+  '8': 7,
+  '7': 6,
+  '6': 5,
+  '5': 4,
+  '4': 3,
+  '3': 2,
+  '2': 1
 };
 
 function sortHands(a: HandData, b: HandData): number {
