@@ -7,7 +7,6 @@ async function solve() {
   const convertData = parseData(data);
   const result = convertData.map(el => extrapolate(el)).reduce((a, b) => a + b);
   console.log(result);
-
 }
 
 solve();
