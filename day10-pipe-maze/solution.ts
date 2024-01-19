@@ -1,6 +1,5 @@
 import { readFile } from "fs/promises";
 import path from "path";
-import { stripVTControlCharacters } from "util";
 
 async function solve() {
   const file = path.join(__dirname, './data.txt');
@@ -32,7 +31,7 @@ const movesFrom: { [p in Direction]: [number, number] } = {
   RIGHT: [0, -1]
 };
 
-//directionsTo
+// move TO
 const movesTo: { [p in Direction]: [number, number] } = {
   BOTTOM: [1, 0],
   LEFT: [0, -1],
