@@ -45,7 +45,9 @@ function expand(grid: string[][]) {
       }
     }
   }
-  return newGridVert;
+  const points = getCoordinates(newGridVert);
+  const result = comparePairs(points);
+  console.log(result);
 }
 
 function checkColumnIfEmpty(column: number, grid: string[][]) {
@@ -63,4 +65,27 @@ function checkColumnIfEmpty(column: number, grid: string[][]) {
     }
   }
   return allEmpty;
+}
+
+function getCoordinates(grid: string[][]) {
+  let points = [];
+  for (let i = 0; i < grid.length; i++) {
+    for (let k = 0; k < grid[0].length; k++) {
+      if (grid[i][k] === '#') {
+        points.push([i, k]);
+      }
+    }
+  }
+  return points;
+}
+
+function comparePairs(arr: number[][]) {
+  let allSteps = 0;
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = i + 1; j < arr.length; j++) {
+      const steps = arr[j][0] - arr[i][0] + Math.abs(arr[j][1] - arr[i][1]);
+      allSteps += steps;
+    }
+  }
+  return allSteps;
 }
