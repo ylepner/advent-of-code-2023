@@ -1,4 +1,3 @@
-import exp from "constants";
 import { checkIfPartNumber, findNumbersInARow, findPointsAround, solve } from "./day3-gear-ratios";
 import path from "path";
 import { readFile } from "fs/promises";
