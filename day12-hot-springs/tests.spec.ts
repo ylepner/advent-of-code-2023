@@ -1,15 +1,4 @@
-import { solve } from "../day12-hot-springs/solution";
-
-describe('testing test', () => {
-  test('should return element boolean', async () => {
-    inputs2.forEach(async el => {
-      if (typeof el[0] === 'string' && typeof el[1] === 'boolean') {
-        const result = solve(el[0]);
-        expect(result).toBe(el[1]);
-      }
-    })
-  });
-});
+import { countSolution, solve } from "../day12-hot-springs/solution";
 
 const inputs = [
   ["#.#.### 1,1,3", true],
@@ -19,13 +8,65 @@ const inputs = [
   ["#....######..#####. 1,6,5", true],
   [".###.##....# 3,2,1", true],
   [".#.### 1,1,3", false],
-]
+  ["#.### 1,3", true],
+] as const;
+
+function runTest(index: number) {
+  const result = solve(inputs[index][0])
+  expect(result).toBe(inputs[index][1])
+}
+
+describe('testing test', () => {
+  test('It should handle case 0', () => {
+    runTest(0)
+  });
+  test('It should handle case 1', () => {
+    runTest(1)
+  });
+  test('It should handle case 2', () => {
+    runTest(2)
+  });
+  test('It should handle case 3', () => {
+    runTest(3)
+  });
+  test('It should handle case 4', () => {
+    runTest(4)
+  });
+  test('It should handle case 5', () => {
+    runTest(5)
+  });
+  test('It should handle case 6', () => {
+    runTest(6)
+  });
+  test('It should handle case 7', () => {
+    runTest(7)
+  });
+});
+
+function runCount(testNumber: number) {
+  const [input, expected] = inputs2[testNumber];
+  const result = countSolution(input)
+  expect(result).toBe(expected)
+}
+
+describe('count test', () => {
+  test('it should handle case 0', () => {
+    runCount(0);
+  })
+  test('it should handle case 1', () => {
+    runCount(1);
+  })
+  test('it should handle case 2', () => {
+    runCount(2);
+  })
+})
+
 
 const inputs2 = [
-  ['#.#.### 1,1,3', true],
-  ['.#...#....### 1,1,3', true],
-  ['.#.###.#.###### 1,3,1,6', true],
-  ['####.#...#... 4,1,1', true],
-  ['#....######..#####. 1,6,5', true],
-  ['.###.##...# 3,2,1', true]
-]
+  ["???.### 1,1,3", 1],
+  [".??..??...?##. 1,1,3", 4],
+  ["?#?#?#?#?#?#?#? 1,3,1,6", 1],
+  ["????.#...#... 4,1,1", 1],
+  ["????.######..#####. 1,6,5", 4],
+  ["?###???????? 3,2,1", 10],
+] as const;

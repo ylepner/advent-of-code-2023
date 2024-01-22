@@ -1,5 +1,11 @@
 import { readFile } from "fs/promises";
 import path from "path";
+function parseInput(input: string) {
+  const split = input.split(' ');
+  let [springs, bucketsStr] = split;
+  const buckets = bucketsStr.split(',').map(el => Number(el));
+  return [springs, buckets] as const;
+}
 
 export function solve(info: string) {
   // const file = path.join(__dirname, './data.txt');
@@ -55,37 +61,63 @@ function handleBrokenSpring(state: State): State | null {
 }
 
 function handleNormalSpring(state: State): State | null {
+  let bucketIndex = state.bucketIndex;
   if (state.type === 'broken' && state.brokenCount === state.buckets[state.bucketIndex]) {
-    state.bucketIndex += 1;
+    bucketIndex += 1;
     if (state.bucketIndex > state.buckets.length) {
       return null;
     }
   }
   return {
     type: 'normal',
-    bucketIndex: state.bucketIndex,
+    bucketIndex: bucketIndex,
     buckets: state.buckets
   }
 }
 
-function checkIfPassed(springs: string, state: State) {
+function checkIfPassed(springs: string, state: State | null) {
   for (let i = 0; i < springs.length; i++) {
+    if (state == null) {
+      return false;
+    }
     if (springs[i] === '#') {
-      const newState = handleBrokenSpring(state);
-      if (newState !== null) {
-        state = newState;
-      } else {
-        return false
-      }
+      state = handleBrokenSpring(state);
     }
     else if (springs[i] === '.') {
-      const newState = handleNormalSpring(state);
-      if (newState) {
-        state = newState;
-      } else {
-        return false
-      }
+      state = handleNormalSpring(state);
     }
   }
-  return true
+  return state != null;
+}
+
+export function countSolution(input: string) {
+  const [springs, buckets] = parseInput(input);
+  return count(springs, {
+    type: 'normal',
+    buckets: buckets,
+    bucketIndex: 0
+  }, 0)
+}
+
+export function count(springs: string, state: State | null, startFrom: number): number {
+  for (let i = startFrom; i < springs.length; i++) {
+    if (state == null) {
+      return 0;
+    }
+    if (springs[i] === '#') {
+      state = handleBrokenSpring(state);
+    }
+    else if (springs[i] === '.') {
+      state = handleNormalSpring(state);
+    } else if (springs[i] === '?') {
+      const left = count(springs, handleNormalSpring(state), i + 1);
+      const right = count(springs, handleBrokenSpring(state), i + 1);
+      return left + right;
+    }
+  }
+  if (state == null) {
+    return 0;
+  }
+  return 1;
+  //return state != null;
 }
