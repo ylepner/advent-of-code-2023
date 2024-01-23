@@ -1,5 +1,6 @@
 import { readFile } from "fs/promises";
 import path from "path";
+
 function parseInput(input: string) {
   const split = input.split(' ');
   let [springs, bucketsStr] = split;
@@ -7,13 +8,16 @@ function parseInput(input: string) {
   return [springs, buckets] as const;
 }
 
-export function solve(info: string) {
-  // const file = path.join(__dirname, './data.txt');
-  // const result = await readFile(file, { encoding: 'utf-8' });
-  // const data = info.split('\n').map(el => el.trim().split(' '));
-  const split = info.split(' ');
-  let [springs, bucketsStr] = split;
-  const buckets = bucketsStr.split(',').map(el => Number(el));
+async function countOptions() {
+  const data = await readData();
+  const result = data.map(arr => countSolution(arr.join(', '))).reduce((a, b) => a + b);
+  console.log(result);
+}
+
+countOptions();
+
+export function solve(input: string) {
+  let [springs, buckets] = parseInput(input);
   let state: State = {
     type: 'normal',
     bucketIndex: 0,
@@ -28,21 +32,24 @@ async function readData() {
   const result = await readFile(file, { encoding: 'utf-8' });
   return result.split('\n').map(el => el.trim().split(' '));
 }
-
-type State = {
-  type: 'normal',
-  bucketIndex: number;
-  buckets: number[];
-} | {
+type BrokenState = {
   type: 'broken',
   bucketIndex: number;
   brokenCount: number;
   buckets: number[];
 };
+type State = {
+  type: 'normal',
+  bucketIndex: number;
+  buckets: number[];
+} | BrokenState;
 
 
 function handleBrokenSpring(state: State): State | null {
   let broken: number;
+  if (state.bucketIndex > state.buckets.length) {
+    return null;
+  }
   if (state.type === 'broken') {
     broken = state.brokenCount + 1;
   } else {
@@ -62,17 +69,28 @@ function handleBrokenSpring(state: State): State | null {
 
 function handleNormalSpring(state: State): State | null {
   let bucketIndex = state.bucketIndex;
-  if (state.type === 'broken' && state.brokenCount === state.buckets[state.bucketIndex]) {
-    bucketIndex += 1;
-    if (state.bucketIndex > state.buckets.length) {
-      return null;
+
+  if (state.type === 'normal') {
+    return state;
+  }
+
+  if (state.type === 'broken') {
+    if (state.brokenCount === state.buckets[state.bucketIndex]) {
+      return {
+        type: 'normal',
+        buckets: state.buckets,
+        bucketIndex: bucketIndex + 1,
+      }
     }
   }
-  return {
-    type: 'normal',
-    bucketIndex: bucketIndex,
-    buckets: state.buckets
+  return null;
+}
+
+function isAllBucketEmptied(brokenState: BrokenState) {
+  if (brokenState.bucketIndex + 1 === brokenState.buckets.length && brokenState.brokenCount === brokenState.buckets[brokenState.bucketIndex]) {
+    return true;
   }
+  return false;
 }
 
 function checkIfPassed(springs: string, state: State | null) {
@@ -87,6 +105,12 @@ function checkIfPassed(springs: string, state: State | null) {
       state = handleNormalSpring(state);
     }
   }
+  if (state?.type === 'broken' && !isAllBucketEmptied(state)) {
+    state = null;
+  }
+  if (state?.type === 'normal' && state.buckets[state.bucketIndex]) {
+    state = null;
+  }
   return state != null;
 }
 
@@ -95,7 +119,7 @@ export function countSolution(input: string) {
   return count(springs, {
     type: 'normal',
     buckets: buckets,
-    bucketIndex: 0
+    bucketIndex: 0,
   }, 0)
 }
 
@@ -115,9 +139,14 @@ export function count(springs: string, state: State | null, startFrom: number): 
       return left + right;
     }
   }
+  if (state?.type === 'broken' && !isAllBucketEmptied(state)) {
+    state = null;
+  }
+  if (state?.type === 'normal' && state.buckets[state.bucketIndex]) {
+    state = null;
+  }
   if (state == null) {
     return 0;
   }
   return 1;
-  //return state != null;
 }
