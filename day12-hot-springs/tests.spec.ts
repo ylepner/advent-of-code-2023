@@ -1,4 +1,4 @@
-import { countSolution, solve } from "../day12-hot-springs/solution";
+import { countSolution, solve, unfold } from "../day12-hot-springs/solution";
 
 const inputs = [
   ["#.#.### 1,1,3", true],
@@ -87,6 +87,17 @@ describe('count test', () => {
   })
   test('it should handle case 5', () => {
     runCount(5);
+  })
+})
+
+describe('unfold', () => {
+  test('it should be unfold correctly', () => {
+    const result = unfold(inputs2[0][0]);
+    expect(result).toBe('???.###????.###????.###????.###????.### 1,1,3,1,1,3,1,1,3,1,1,3,1,1,3')
+  })
+  test('it should be count correctly to unfold springs', () => {
+    const result = countSolution(unfold(inputs2[1][0]));
+    expect(result).toBe(16384);
   })
 })
 

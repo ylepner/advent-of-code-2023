@@ -10,7 +10,8 @@ function parseInput(input: string) {
 
 async function countOptions() {
   const data = await readData();
-  const result = data.map(arr => countSolution(arr.join(', '))).reduce((a, b) => a + b);
+  const unfoldData = data.map(arr => unfold(arr.join(', ')));
+  const result = unfoldData.map(arr => countSolution(arr)).reduce((a, b) => a + b);
   console.log(result);
 }
 
@@ -149,4 +150,11 @@ export function count(springs: string, state: State | null, startFrom: number): 
     return 0;
   }
   return 1;
+}
+
+export function unfold(str: string) {
+  const split = str.split(' ');
+  const copiesStr = Array(4).fill(split[0] + '?').join('') + split[0];
+  const copiesNumbers = Array(4).fill(split[1] + ',').join('') + split[1];
+  return copiesStr + ' ' + copiesNumbers;
 }
