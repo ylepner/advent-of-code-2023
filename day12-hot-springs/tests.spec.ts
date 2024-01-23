@@ -8,7 +8,12 @@ const inputs = [
   ["#....######..#####. 1,6,5", true],
   [".###.##....# 3,2,1", true],
   [".#.### 1,1,3", false],
-  ["#.### 1,3", true],
+  ["#.##. 1,3", false],
+  [".## 3", false],
+  [".# 2", false],
+  [".# 1,1", false],
+  [".#. 1,1", false],
+  [".# 1,1", false],
 ] as const;
 
 function runTest(index: number) {
@@ -41,6 +46,21 @@ describe('testing test', () => {
   test('It should handle case 7', () => {
     runTest(7)
   });
+  test('It should handle case 8', () => {
+    runTest(8)
+  });
+  test('It should handle case 9', () => {
+    runTest(9)
+  });
+  test('It should handle case 10', () => {
+    runTest(10)
+  });
+  test('It should handle case 11', () => {
+    runTest(11)
+  });
+  test('It should handle case 12', () => {
+    runTest(12)
+  });
 });
 
 function runCount(testNumber: number) {
@@ -58,6 +78,15 @@ describe('count test', () => {
   })
   test('it should handle case 2', () => {
     runCount(2);
+  })
+  test('it should handle case 3', () => {
+    runCount(3);
+  })
+  test('it should handle case 4', () => {
+    runCount(4);
+  })
+  test('it should handle case 5', () => {
+    runCount(5);
   })
 })
 
