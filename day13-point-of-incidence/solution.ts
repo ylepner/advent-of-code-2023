@@ -1,11 +1,21 @@
 import { readFile } from "fs/promises";
 import path from "path";
 
-export async function solve13() {
+export async function solve13(dataStr: string) {
+  // const data = await getData();
+  // const results = data.map(el => getMiddle(el));
+  // console.log(results.reduce((a, b) => a + b));
+  const split = dataStr.split('\n').map(el => el.trim());
+  const result = getMiddle(split);
+  return result;
+}
+
+export async function getResult() {
   const data = await getData();
   const results = data.map(el => getMiddle(el));
-  // return results.reduce((a, b) => a + b);
+  console.log(results.reduce((a, b) => a + b));
 }
+
 
 export async function getData() {
   const file = path.join(__dirname, './data.txt');
@@ -30,14 +40,14 @@ export async function getData() {
 
 function getMiddle(arr: string[]) {
   const horizIndex = reflection({ grid: arr, maxRow: arr.length, maxCol: arr[0].length, getElement: (grid, rowOrCol, i) => grid[rowOrCol][i] });
-  const vertIndex = reflection({ grid: arr, maxRow: arr.length, maxCol: arr[0].length, getElement: (grid, rowOrCol, i) => grid[i][rowOrCol] });
+  const vertIndex = reflection({ grid: arr, maxRow: arr[0].length, maxCol: arr.length, getElement: (grid, rowOrCol, i) => grid[i][rowOrCol] });
   if (horizIndex) {
     return horizIndex * 100
   }
-  else if (vertIndex) {
+  if (vertIndex) {
     return vertIndex
   }
-  else return null;
+  throw new Error('Error!');
 }
 
 type ReflectionParams = { grid: string[], maxRow: number, maxCol: number, getElement: (grid: string[], rowOrColNumber: number, elementNumber: number) => string }
@@ -49,7 +59,7 @@ function reflection({ grid, maxRow, maxCol, getElement }: ReflectionParams) {
     const rowOrCol2 = i + 1;
     const isEquals = linesEquals(rowOrCol1, rowOrCol2, { grid, maxRow, maxCol, getElement });
     if (isEquals) {
-      middleIndex = i + 1;
+      middleIndex = i;
       break;
     }
   }
@@ -57,10 +67,11 @@ function reflection({ grid, maxRow, maxCol, getElement }: ReflectionParams) {
     for (let i = 0; ; i++) {
       const line1 = middleIndex - i;
       const line2 = middleIndex + 1 + i;
-      if (line1 && line2) {
+      if (line1 >= 0 && line2 <= maxRow - 1) {
+        console.log(line1, line2);
         const isEquals = linesEquals(line1, line2, { grid, maxRow, maxCol, getElement });
-        if (isEquals && line1 === 0 || line2 === maxRow - 1) {
-          return middleIndex;
+        if (isEquals && (line1 === 0 || line2 === maxRow - 1)) {
+          return middleIndex + 1;
         } else {
           continue;
         }
