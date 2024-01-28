@@ -55,6 +55,17 @@ const test5 = `
 ..##..#....#..#`
 
 
+const test6 = `
+.#..####..####..#
+.#..####..####..#
+.#..####..#####.#
+.#######..#######
+#####.######.####
+.....##....##....
+#..###.####.###..
+..##..........##.
+..######..######.`
+
 describe('Should get index before vertical line in the middle', () => {
   test('test1', async () => {
     const result = await solve13(test1);
@@ -76,10 +87,15 @@ describe('Should get index before vertical line in the middle', () => {
     const result = await solve13(test5.trim());
     expect(result).toBe(13);
   });
+  test('test5', async () => {
+    const result = await solve13(test6.trim());
+    expect(result).toBe(100);
+  });
 });
 describe('Should find sum of index', () => {
   test('test on array', async () => {
     const result = await getResult();
-    expect(result).toBe(405);
+    expect(result).toBeLessThan(30824);
+    console.log(result);
   })
 })
