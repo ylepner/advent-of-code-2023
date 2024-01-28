@@ -2,9 +2,6 @@ import { readFile } from "fs/promises";
 import path from "path";
 
 export async function solve13(dataStr: string) {
-  // const data = await getData();
-  // const results = data.map(el => getMiddle(el));
-  // console.log(results.reduce((a, b) => a + b));
   const split = dataStr.split('\n').map(el => el.trim());
   const result = getMiddle(split);
   return result;
