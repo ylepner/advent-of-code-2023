@@ -38,6 +38,9 @@ export async function getData() {
 function getMiddle(arr: string[]) {
   const vertIndex = reflection({ grid: arr, maxRow: arr[0].length, maxCol: arr.length, getElement: (grid, rowOrCol, i) => grid[i][rowOrCol] });
   const horizIndex = reflection({ grid: arr, maxRow: arr.length, maxCol: arr[0].length, getElement: (grid, rowOrCol, i) => grid[rowOrCol][i] });
+  if (horizIndex && vertIndex) {
+    throw new Error(`It's not possible! vert: ${vertIndex}, hor: ${horizIndex} \n ${arr.join('\n')}`)
+  }
   if (horizIndex) {
     return horizIndex * 100
   }
@@ -72,10 +75,14 @@ function checkIfReflection(middleIndex: number, params: ReflectionParams): boole
     const line2 = middleIndex + 1 + i;
     if (line1 >= 0 && line2 <= params.maxRow - 1) {
       const isEquals = linesEquals(line1, line2, params);
-      if (isEquals && (line1 === 0 || line2 === params.maxRow - 1)) {
-        return true;
+      if (!isEquals) {
+        return false;
       } else {
-        continue;
+        if (isEquals && (line1 === 0 || line2 === params.maxRow - 1)) {
+          return true;
+        } else {
+          continue;
+        }
       }
     } else {
       return false;
@@ -92,7 +99,7 @@ function linesEquals(line1: number, line2: number, params: ReflectionParams): bo
       throw new Error(`Wrong input! '${el1}' '${el2}'`)
     }
     if (el1 === el2) {
-      if (j === params.maxRow - 1) {
+      if (j === params.maxCol - 1) {
         return true;
       } else {
         continue;
