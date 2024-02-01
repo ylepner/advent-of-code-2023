@@ -25,11 +25,9 @@ const movesTo: { [p in Direction]: [number, number] } = {
 export function solve16(field: string, startPosition: Position = [0, 0], directionTo: Direction = 'RIGHT') {
   const grid = field.trim().split('\n').map(el => el.trim());
   let isValid = true;
-  let resultGrid = Array.from({ length: grid.length }, () => Array.from({ length: grid[0].length }).fill('.'));
+  let resultGrid = Array.from({ length: grid.length }, () => Array.from({ length: grid[0].length }).fill('.')) as string[][];
   while (isValid) {
-    const [x, y] = startPosition;
-    resultGrid[x][y] = '#';
-    const newPosition = getStep(grid, startPosition, directionTo);
+    const newPosition = getStep(grid, resultGrid, startPosition, directionTo);
     if (newPosition != null) {
       startPosition = newPosition.point;
       directionTo = newPosition.direction;
@@ -38,19 +36,21 @@ export function solve16(field: string, startPosition: Position = [0, 0], directi
       isValid = false;
     };
   }
+  resultGrid;
   const result = resultGrid.map(el => el.filter(el => el === '#').length).reduce((a, b) => a + b);
   return result;
 }
 
-function getStep(grid: string[], startPosition: Position, directionTo: Direction) {
+function getStep(grid: string[], resultGrid: string[][], startPosition: Position, directionTo: Direction): { point: Position, direction: Direction } | null {
   let [x, y] = startPosition;
   const directionCoordinates = movesTo[directionTo];
   let [xDir, yDir] = directionCoordinates;
   const nextStep: Position = [x + xDir, y + yDir];
-  let newDir: Direction | null = directionTo;
+  let newDir;
+  resultGrid[x][y] = '#';
   if (checkIfValid(grid, nextStep)) {
     const element = grid[nextStep[0]][nextStep[1]];
-    if (element === '.') {
+    if (element === '.' || element === '#') {
       newDir = directionTo;
     }
     else if (Object.keys(mirrorsDescriptions).includes(element)) {
@@ -60,14 +60,28 @@ function getStep(grid: string[], startPosition: Position, directionTo: Direction
       if (Object.values(splittersDescriptions[element]).includes(directionTo)) {
         newDir = directionTo;
       } else {
-        let newDirFirst = splittersDescriptions[element][0];
-        let newDirSecond = splittersDescriptions[element][1];
+        const firstDir = splittersDescriptions[element][0];
+        const secondDir = splittersDescriptions[element][1];
+        let newDirFirst = getStep(grid, resultGrid, nextStep, firstDir);
+        if (newDirFirst) {
+          startPosition = newDirFirst.point;
+          newDir = newDirFirst.direction;
+        }
+        let newDirSecond = getStep(grid, resultGrid, nextStep, secondDir);
+        if (newDirSecond) {
+          startPosition = newDirSecond.point;
+          newDir = newDirSecond.direction;
+        }
       }
     }
   } else {
     return null;
   }
-  return { point: nextStep, direction: newDir || directionTo };
+  if (!newDir) {
+    return null;
+  }
+  console.log('element: ', grid[startPosition[0]][startPosition[1]], 'start: ', startPosition, 'next: ', nextStep, 'direction: ', newDir)
+  return { point: nextStep, direction: newDir! };
 }
 
 function checkIfValid(grid: string[], point: number[]) {
