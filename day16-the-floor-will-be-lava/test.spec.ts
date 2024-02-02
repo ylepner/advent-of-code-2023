@@ -44,9 +44,8 @@ const test5 = `
 ...
 `
 
-
-async function getData() {
-  const file = path.join(__dirname, './data.txt');
+async function getData(fileName: string) {
+  const file = path.join(__dirname, fileName);
   const result = await readFile(file, { encoding: 'utf-8' });
   return result;
 }
@@ -78,9 +77,14 @@ describe('Test grid', () => {
     expect(result).toBe(7);
   })
   test('Test 6', async () => {
-    const data = await getData();
+    const data = await getData('./data.txt');
     const result = solve16(strToArr(data), [0, 0], 'RIGHT');
     expect(result).toBe(46);
+  })
+  test('Big data', async () => {
+    const data = await getData('./big-data.txt');
+    const result = solve16(strToArr(data), [0, 0], 'RIGHT');
+    expect(result).toBe(7392);
   })
 });
 

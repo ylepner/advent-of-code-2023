@@ -82,16 +82,19 @@ function solve(grid: string[][], resultGrid: string[][], currentCoordinates: [nu
   while (true) {
     if (checkIfValid(grid, position.coordinates)) {
       const [x, y] = position.coordinates;
-      resultGrid[x][y] = '#';
       const newDirection = getNextDirection(grid, position);
       if (!Array.isArray(newDirection)) {
+        resultGrid[x][y] = '#';
         const newCoordinates = calcNextCoordinates(position.coordinates, newDirection);
         position = {
           coordinates: newCoordinates,
           directionFrom: newDirection,
         }
       } else {
-
+        if (resultGrid[x][y] === '#') {
+          break;
+        }
+        resultGrid[x][y] = '#';
         let newDir1 = newDirection[0];
         const newCoordinates1 = calcNextCoordinates(position.coordinates, newDir1);
         solve(grid, resultGrid, newCoordinates1, newDir1);
