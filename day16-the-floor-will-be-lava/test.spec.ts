@@ -38,24 +38,12 @@ const test4 = `
 ./.
 `
 
-// const test4 = `
-// .|.
-// .-|
-// ...
-// `
-
 const test5 = `
-.|...,....
-|.-.,.....
-.....|-...
-........|.
-..........
-.........,
-....;.,,..
-.-.-;..|..
-.|....-|.,
-..;;.|....
+.|.
+.-|
+...
 `
+
 
 async function getData() {
   const file = path.join(__dirname, './data.txt');
@@ -74,10 +62,25 @@ describe('Test grid', () => {
     const result = solve16(data, [0, 0], 'RIGHT');
     expect(result).toBe(3);
   })
+  test('Test 3', () => {
+    const data = strToArr(test3);
+    const result = solve16(data, [0, 0], 'RIGHT');
+    expect(result).toBe(4);
+  })
   test('Test 4', () => {
     const data = strToArr(test4);
     const result = solve16(data, [0, 0], 'RIGHT');
     expect(result).toBe(5);
+  })
+  test('Test 5', () => {
+    const data = strToArr(test5);
+    const result = solve16(data, [0, 0], 'RIGHT');
+    expect(result).toBe(7);
+  })
+  test('Test 6', async () => {
+    const data = await getData();
+    const result = solve16(strToArr(data), [0, 0], 'RIGHT');
+    expect(result).toBe(46);
   })
 });
 

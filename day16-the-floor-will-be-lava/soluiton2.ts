@@ -2,7 +2,7 @@
 type Direction = 'TOP' | 'BOTTOM' | 'LEFT' | 'RIGHT';
 
 type DirectionDefinition = {
-  [p in Direction]: Direction | 'split';
+  [p in Direction]: Direction | Direction[];
 }
 type Pipes = '-' | '|' | '/' | '\\';
 
@@ -10,26 +10,26 @@ const pipes: { [p in Pipes]: DirectionDefinition } = {
   "-": {
     RIGHT: 'RIGHT',
     LEFT: 'LEFT',
-    TOP: 'split',
-    BOTTOM: 'split',
+    TOP: ['LEFT', 'RIGHT'],
+    BOTTOM: ['LEFT', 'RIGHT'],
   },
   '|': {
     TOP: 'TOP',
     BOTTOM: 'BOTTOM',
-    LEFT: 'split',
-    RIGHT: 'split'
+    LEFT: ['TOP', 'BOTTOM'],
+    RIGHT: ['TOP', 'BOTTOM'],
   },
   '/': {
     RIGHT: 'TOP',
     LEFT: 'BOTTOM',
     TOP: 'RIGHT',
-    BOTTOM: 'LEFT'
+    BOTTOM: 'LEFT',
   },
   '\\': {
     BOTTOM: 'RIGHT',
     LEFT: 'TOP',
     RIGHT: 'BOTTOM',
-    TOP: 'LEFT'
+    TOP: 'LEFT',
   }
 }
 
@@ -45,34 +45,15 @@ interface Position {
   directionFrom: Direction;
 }
 
-function getNextDirection(grid: string[][], currentPosition: Position) {
+function getNextDirection(grid: string[][], currentPosition: Position): Direction | Direction[] {
   const [x, y] = currentPosition.coordinates;
   const element = grid[x][y];
   if (element === '.' || element === '#') {
     return currentPosition.directionFrom;
   } else {
-    const newDir = pipes[element as Pipes][currentPosition.directionFrom] as Direction | 'split';
-    if (newDir === 'split') {
-      return getSplitDirections(currentPosition.directionFrom)
-    } else {
-      return newDir
-    }
+    return pipes[element as Pipes][currentPosition.directionFrom] as Direction | Direction[];
   }
 }
-
-function getSplitDirections(directionFrom: Direction) {
-  let newDir1;
-  let newDir2;
-  if (directionFrom === 'LEFT' || directionFrom === 'RIGHT') {
-    newDir1 = 'TOP';
-    newDir2 = 'BOTTOM';
-  } else {
-    newDir1 = 'LEFT';
-    newDir2 = 'RIGHT';
-  }
-  return [newDir1, newDir2];
-}
-
 
 function calcNextCoordinates(currentCoordinates: [number, number], direction: Direction): [number, number] {
   const [x, y] = currentCoordinates;
@@ -86,8 +67,14 @@ function checkIfValid(grid: string[][], point: number[]) {
   return x >= 0 && x < grid.length && y >= 0 && y < grid[0].length;
 }
 
-export function solve16(grid: string[][], currentCoordinates: [number, number], direction: Direction) {
+export function solve16(grid: string[][], currentCoordinates: [number, number] = [0, 0], direction: Direction = 'RIGHT') {
   let resultGrid = Array.from({ length: grid.length }, () => Array.from({ length: grid[0].length }).fill('.')) as string[][];
+  solve(grid, resultGrid, currentCoordinates, direction);
+  const result = resultGrid.map(el => el.filter(el => el === '#').length).reduce((a, b) => a + b);
+  return result;
+}
+
+function solve(grid: string[][], resultGrid: string[][], currentCoordinates: [number, number], direction: Direction) {
   let position: Position = {
     coordinates: currentCoordinates,
     directionFrom: direction
@@ -95,19 +82,26 @@ export function solve16(grid: string[][], currentCoordinates: [number, number], 
   while (true) {
     if (checkIfValid(grid, position.coordinates)) {
       const [x, y] = position.coordinates;
-      const newDirection = getNextDirection(grid, position) as Direction;
-      const newCoordinates = calcNextCoordinates(position.coordinates, newDirection);
       resultGrid[x][y] = '#';
+      const newDirection = getNextDirection(grid, position);
       if (!Array.isArray(newDirection)) {
+        const newCoordinates = calcNextCoordinates(position.coordinates, newDirection);
         position = {
           coordinates: newCoordinates,
           directionFrom: newDirection,
         }
+      } else {
+
+        let newDir1 = newDirection[0];
+        const newCoordinates1 = calcNextCoordinates(position.coordinates, newDir1);
+        solve(grid, resultGrid, newCoordinates1, newDir1);
+        let newDir2 = newDirection[1];
+        const newCoordinates2 = calcNextCoordinates(position.coordinates, newDir2);
+        solve(grid, resultGrid, newCoordinates2, newDir2);
+        break;
       }
     } else {
       break;
     }
   }
-  const result = resultGrid.map(el => el.filter(el => el === '#').length).reduce((a, b) => a + b);
-  return result;
 }
