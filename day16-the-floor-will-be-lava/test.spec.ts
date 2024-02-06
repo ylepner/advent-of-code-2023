@@ -1,6 +1,6 @@
 import { readFile } from "fs/promises"
 import path from "path"
-import { solve16 } from "./soluiton2"
+import { solve16 } from "./soluiton"
 
 const layout = `
 .|...\....
