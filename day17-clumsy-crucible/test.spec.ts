@@ -47,10 +47,10 @@ describe('Test Dijkstra algorithm', () => {
   })
   test('Test 3', () => {
     const result = solve17(test3.trim());
-    expect(result).toBe(23);
+    expect(result).toBe(24);
   })
   test('Test 4', () => {
     const result = solve17(test4.trim());
-    expect(result).toBe(80);
+    expect(result).toBe(104);
   })
 })

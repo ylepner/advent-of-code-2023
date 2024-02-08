@@ -19,27 +19,49 @@ function dijkstra(grid: number[][]) {
   // create queue
   const queue = new PriorityQueue();
 
-  // add to queue the first element
-  queue.enqueue([0, 0], grid[0][0]);
+  const firstElement: ElementInfo = {
+    position: [0, 0],
+    priority: grid[0][0],
+    direction: 'START',
+    penalty: 1,
+  }
 
-  // get directions
-  const dx = [-1, 1, 0, 0];
-  const dy = [0, 0, -1, 1];
+  // add to queue the first element
+  queue.enqueue(firstElement);
 
   // loop
   while (!queue.isEmpty()) {
-    const [x, y] = queue.dequeue()!;
-    const distance = distances[x][y];
+    const element: ElementInfo = queue.dequeue()!;
+    console.log(element);
+    const [x, y] = element.position;
+    const distance = element.priority;
+    let steps = element.penalty;
 
-    for (let i = 0; i < 4; i++) {
-      const newX = dx[i] + x;
-      const newY = dy[i] + y;
+    const directions = getDirections(element, grid);
 
-      if (newX >= 0 && newX < rows && newY >= 0 && newY < cols) {
-        const newDistance = distance + grid[newX][newY];
-        if (newDistance < distances[newX][newY]) {
-          distances[newX][newY] = newDistance;
-          queue.enqueue([newX, newY], newDistance);
+    for (let dir of directions) {
+      if (dir === element.direction && element.penalty === 3) {
+        steps = 0;
+        continue;
+      } else {
+        if (dir === element.direction) {
+          steps += 1;
+        }
+        const [dirX, dirY] = movesTo[dir as Direction];
+        const newX = x + dirX;
+        const newY = y + dirY;
+        if (newX >= 0 && newX < grid.length && newY >= 0 && newY < grid[0].length) {
+          const newDistance = distance + grid[newX][newY];
+          if (newDistance < distances[newX][newY]) {
+            distances[newX][newY] = newDistance;
+            const element: ElementInfo = {
+              position: [newX, newY],
+              priority: newDistance,
+              direction: dir,
+              penalty: steps,
+            }
+            queue.enqueue(element);
+          }
         }
       }
     }
@@ -48,19 +70,19 @@ function dijkstra(grid: number[][]) {
 }
 
 class PriorityQueue {
-  private elements: { element: [number, number], priority: number }[];
+  private elements: ElementInfo[];
 
   constructor() {
     this.elements = [];
   }
 
-  enqueue(element: [number, number], priority: number): void {
-    this.elements.push({ element, priority });
+  enqueue(element: ElementInfo): void {
+    this.elements.push(element);
     this.sort();
   }
 
-  dequeue(): [number, number] | undefined {
-    return this.elements.shift()?.element;
+  dequeue(): ElementInfo | undefined {
+    return this.elements.shift();
   }
 
   isEmpty(): boolean {
@@ -70,4 +92,44 @@ class PriorityQueue {
   private sort(): void {
     this.elements.sort((a, b) => a.priority - b.priority);
   }
+}
+
+type ElementInfo = {
+  position: [number, number];
+  priority: number;
+  direction: Direction | 'START';
+  penalty: number;
+}
+
+const movesTo: { [p in Direction]: [number, number] } = {
+  BOTTOM: [1, 0],
+  LEFT: [0, -1],
+  TOP: [-1, 0],
+  RIGHT: [0, 1],
+  START: [0, 0],
+};
+
+const oppositeMap: { [p in Direction]: Direction } = {
+  TOP: 'BOTTOM',
+  BOTTOM: 'TOP',
+  LEFT: 'RIGHT',
+  RIGHT: 'LEFT',
+  START: 'START'
+}
+
+type Direction = 'TOP' | 'BOTTOM' | 'LEFT' | 'RIGHT' | 'START';
+
+function getDirections(element: ElementInfo, grid: number[][]) {
+  const directions: Direction[] = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+  const result: Direction[] = [];
+  for (let dir of directions) {
+    const [x, y] = element.position;
+    const [dirX, dirY] = movesTo[dir];
+    const newX = x + dirX;
+    const newY = y + dirY;
+    if (newX >= 0 && newX < grid.length && newY >= 0 && newY < grid[0].length) {
+      result.push(dir);
+    }
+  }
+  return result.filter(el => el !== oppositeMap[element.direction]);
 }
