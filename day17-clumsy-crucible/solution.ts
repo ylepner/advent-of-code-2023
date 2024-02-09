@@ -1,148 +1,126 @@
-interface Vertex<T> {
-  data: T;
-}
+export function solve17(input: string) {
+  const matrix = parse(input);
 
-interface Params<T> {
-  getNeighbors(node: Vertex<T>): Iterable<Vertex<T>>;
-  getCost(node: Vertex<T>): number;
-  getKey(node: Vertex<T>): string;
-  isFinish(node: Vertex<T>): boolean;
-}
+  let isFirst = true;
 
-interface NodeInfo<T> {
-  node: Vertex<T>;
-  currentCost: number;
-}
-function dijsktra<T>(params: Params<T>, start: Vertex<T>) {
-  const surface: Record<string, NodeInfo<T>> = {};
-  const visited: Record<string, number> = {};
+  function getNeighbors(el: ElementInfo): ElementInfo[] {
 
-  surface[params.getKey(start)] = {
-    currentCost: params.getCost(start),
-    node: start
-  }
+    const allDirections: Direction[] = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
 
-  visited[params.getKey(start)] = params.getCost(start);
-  let count = 0;
-  while (Object.keys(surface).length > 0) {
-    count++;
-    if (count % 10_000 === 0) {
-      console.log('Amount of elements in surface is ' + Object.keys(surface).length)
-    }
-    const currentKey = Object.keys(surface).reduce((a, b) => surface[a].currentCost < surface[b].currentCost ? a : b);
-    const currentNode = surface[currentKey].node;
-    const currentCost = surface[currentKey].currentCost;
-
-    visited[currentKey] = currentCost;
-    delete surface[currentKey];
-    if (params.isFinish(currentNode)) {
-      return currentCost;
-    }
-    const neighbours = params.getNeighbors(currentNode);
-    for (const node of neighbours) {
-      const key = params.getKey(node);
-      const cost = params.getCost(node);
-
-      if (!visited[key] && (!surface[key] || surface[key].currentCost > currentCost + cost)) {
-        surface[key] = {
-          node: node,
-          currentCost: currentCost + cost
-        };
+    const result = allDirections.map(direction => {
+      const [dRow, dCol] = movesTo[direction];
+      const result: ElementInfo = {
+        direction: direction,
+        penalty: direction === el.direction ? el.penalty + 1 : 0,
+        position: [el.position[0] + dRow, el.position[1] + dCol]
       }
-    }
-  }
-  throw new Error('Could not find finish')
-}
-
-const directions = ['up', 'down', 'left', 'right'] as const;
-
-type Direction = typeof directions[number];
-const directionMap: { [p in Direction]: [number, number] } = {
-  down: [1, 0],
-  up: [-1, 0],
-  left: [0, -1],
-  right: [0, 1]
-}
-
-const oppositeMap: { [p in Direction]: Direction } = {
-  up: 'down',
-  down: 'up',
-  left: 'right',
-  right: 'left'
-}
-
-type RouteInfo = {
-  row: number;
-  col: number;
-  penalty: number;
-  direction: Direction;
-}
-
-function getParams(data: number[][]): Params<RouteInfo> {
-  return {
-    getCost: (node) => {
-      return data[node.data.row][node.data.col];
-    },
-    getNeighbors: function* (node) {
-      for (const dir of directions) {
-        const current = node.data;
-        if (oppositeMap[dir] === current.direction) {
-          continue;
-        }
-        const [dc, dr] = directionMap[dir];
-        const newCol = current.col + dc;
-        const newRow = current.row + dr;
-
-        if (!inBounds(data, newCol, newRow)) {
-          continue;
-        }
-        const penalty = dir === current.direction ? current.penalty + 1 : 0;
-        if (penalty > 2) {
-          continue;
-        }
-        yield {
-          data: {
-            col: newCol,
-            row: newRow,
-            direction: dir,
-            penalty: penalty
-          }
+      return result;
+    }).filter((item) => {
+      const opposite = oppositeMap[el.direction];
+      if (item.direction === opposite) {
+        if (!isFirst) {
+          return false;
+        } else {
+          return true;
         }
       }
-    },
-    getKey: (node) => {
-      const data = node.data
-      return `${data.row}_${data.col}_${data.direction}_${data.penalty}`;
-    },
-    isFinish: (node) => {
-      return node.data.row === data.length - 1 && node.data.col === data[0].length - 1
-    }
+      if (item.position[0] < 0 || item.position[0] >= matrix.length || item.position[1] < 0 || item.position[1] >= matrix[0].length) {
+        return false;
+      }
+      if (item.penalty > 2) {
+        return false;
+      }
+      return true;
+    })
+
+    isFirst = false;
+    return result;
   }
-}
 
-function inBounds(input: any[][], row: number, col: number) {
-  return between(row, 0, input.length) && between(col, 0, input[0].length);
-}
+  function getCost(el: ElementInfo) {
+    return matrix[el.position[0]][el.position[1]]
+  }
 
-function between(num: number, from: number, to: number) {
-  return from <= num && num < to;
-}
+  function toString(el: ElementInfo) {
+    return `${el.position[0]}_${el.position[1]}_${el.direction}_${el.penalty}`;
+  }
 
-export function solve(inputStr: string) {
-  const input = inputStr.trim().split('\n').map(s => s.trim().split('').map(x => Number(x)));
-  const params = getParams(input);
-  const maxRow = input.length - 1;
-  const maxCol = input[0].length - 1;
+  function isEnd(el: ElementInfo) {
+    return el.position[0] === matrix.length - 1 && el.position[1] === matrix[0].length - 1;
+  }
 
+  const element: ElementInfo = {
+    position: [0, 0],
+    direction: 'LEFT',
+    penalty: 0
+  }
 
-  const result = dijsktra(params, {
-    data: {
-      row: 0,
-      col: 0,
-      direction: 'up',
-      penalty: 0
-    }
-  })
-
+  const result = dijkstra(element, getNeighbors, getCost, toString, isEnd);
   return result;
 }
+
+function parse(str: string) {
+  return str.trim().split('\n').map(el => el.trim().split('').map(el => Number(el)));
+}
+
+function dijkstra<T>(start: T, getNeighbors: (el: T) => T[], getCost: (el: T) => number, toString: (el: T) => string, isEnd: (el: T) => boolean) {
+
+  const q = new Map<string, { el: T, totalCost: number }>();
+  const visit = new Set<string>();
+  q.set(toString(start), { el: start, totalCost: 0 });
+
+  function getMinElement() {
+    var sorted = Array.from(q.entries()).sort((a, b) => a[1].totalCost - b[1].totalCost);
+    return sorted[0]
+  }
+
+  while (q.size > 0) {
+    const [key, node] = getMinElement();
+    q.delete(key);
+    visit.add(key);
+    if (isEnd(node.el)) {
+      return node.totalCost;
+    }
+    const neighbors = getNeighbors(node.el);
+    for (let neighbor of neighbors) {
+      if (visit.has(toString(neighbor))) {
+        continue;
+      }
+      const cost = getCost(neighbor);
+      const costToTheNeighbor = cost + node.totalCost;
+      const prev = q.get(toString(neighbor));
+      if (prev) {
+        if (costToTheNeighbor < prev.totalCost) {
+          prev.totalCost = costToTheNeighbor;
+        }
+      } else {
+        q.set(toString(neighbor), {
+          el: neighbor, totalCost: costToTheNeighbor
+        })
+      }
+    }
+  }
+  throw new Error('Bad input :(')
+}
+
+type ElementInfo = {
+  position: [number, number];
+  direction: Direction;
+  penalty: number;
+}
+
+const movesTo: { [p in Direction]: [number, number] } = {
+  BOTTOM: [1, 0],
+  LEFT: [0, -1],
+  TOP: [-1, 0],
+  RIGHT: [0, 1]
+};
+
+const oppositeMap: { [p in Direction]: Direction } = {
+  TOP: 'BOTTOM',
+  BOTTOM: 'TOP',
+  LEFT: 'RIGHT',
+  RIGHT: 'LEFT'
+}
+
+type Direction = 'TOP' | 'BOTTOM' | 'LEFT' | 'RIGHT';
