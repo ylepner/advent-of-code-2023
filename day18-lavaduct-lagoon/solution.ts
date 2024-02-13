@@ -2,8 +2,8 @@ export function solve18(input: string) {
   const data = parse(input);
   const gridSize = findGridSize(data);
   const grid: string[][] = Array.from({ length: gridSize[0] }, () => Array.from({ length: gridSize[1] }).fill('.') as string[]);
-  const result = fillGrid(grid, data);
-  return 0;
+  const result = getPoints(grid, data);
+  return result;
 }
 
 function parse(str: string) {
@@ -36,37 +36,33 @@ function findGridSize(data: string[]) {
   return [Math.max(...rows) + 1, Math.max(...cols) + 1];
 }
 
-function fillGrid(grid: string[][], instructions: string[]) {
-  let currCol = 0;
-  let currRow = 0;
-  let colEnd = 0;
-  let rowEnd = 0;
+function getPoints(grid: string[][], instructions: string[]) {
+  let startX = 0;
+  let startY = 0;
+  let result: [number, number][] = [];
+  result.push([startX, startY]);
+  // get new x, new y
   for (let instruction of instructions) {
-    const steps = Number(instruction[1]);
     if (instruction[0] === 'R') {
-      colEnd = currCol + steps;
-    }
+      startX += Number(instruction[1]);
+    };
     if (instruction[0] === 'L') {
-      colEnd = currCol - steps;
-    }
+      startX -= Number(instruction[1]);
+    };
     if (instruction[0] === 'D') {
-      rowEnd = currRow + steps;
+      startY += Number(instruction[1]);
+    };
+    if (instruction[0] === 'U') {
+      startY -= Number(instruction[1]);
     }
-    if (instruction[0] === 'R') {
-      rowEnd = currRow - steps;
+    if (startX === grid[0].length || startX === 0) {
+      startY += 1;
     }
-    if (colEnd > 0) {
-      for (let i = currCol; i < currCol + colEnd; i++) {
-        grid[currRow][i] = '#'
-      }
-      currCol = colEnd;
+    if (startY === grid.length || startY === 0) {
+      startX += 1;
     }
-    if (rowEnd > 0) {
-      for (let i = currRow; i < currRow + rowEnd; i++) {
-        grid[i][currCol] = '#'
-      }
-      currRow = rowEnd;
-    }
+    result.push([startX, startY]);
   }
-  return grid;
-} 
+  return result;
+}
+
