@@ -25,25 +25,24 @@ U 3 (#a77fa3)
 L 2 (#015232)
 U 2 (#7a21e3
 `
-describe('Get vertex points', () => {
+describe('Get area', () => {
   test('Test1', () => {
     const result = solve18(input1);
-    expect(result).toEqual([[0, 0], [7, 0], [7, 3], [0, 3], [0, 0]]);
+    expect(result).toBe(21);
   })
   test('Test2', () => {
     const result = solve18(input2);
-    expect(result).toEqual([[0, 0], [7, 0], [7, 6], [5, 6], [5, 7], [7, 7], [7, 10], [1, 10], [1, 8], [0, 8], [0, 5], [2, 5], [2, 3], [0, 3], [0, 0]]);
+    expect(result).toBe(62);
   })
-}
-)
+})
 
-// describe('Test big data', () => {
-//   test('Big data', async () => {
-//     const data = await getData();
-//     const result = solve18(data);
-//     expect(result).toBe(0);
-//   })
-// })
+describe('Test big data', () => {
+  test('Big data', async () => {
+    const data = await getData();
+    const result = solve18(data);
+    expect(result).toBeLessThan(36142.5);
+  })
+})
 
 async function getData() {
   const file = path.join(__dirname, 'data.txt');
