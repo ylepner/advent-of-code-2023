@@ -27,18 +27,15 @@ function parse(str: string): [Direction, number][] {
 }
 
 function getPoints(instructions: [Direction, number][]) {
-  let startX = 0;
-  let startY = 0;
   let result: [number, number][] = [];
-  result.push([startX, startY]);
-  for (let i = 1; i < instructions.length; i++) {
-    const lastEl = instructions.at(-i)!;
-    const dir = lastEl[0];
+  result.push([0, 0]);
+  for (let instruction of instructions) {
+    const lastPoint = result.at(-1);
+    const dir = instruction[0];
     const dirCoord: [number, number] = movesTo[dir];
-    startX = startX + lastEl[1] * dirCoord[0];
-    startY = startY + lastEl[1] * dirCoord[1];
-    result.push([startX, startY]);
+    result.push([lastPoint![0] + instruction[1] * dirCoord[0], lastPoint![1] + instruction[1] * dirCoord[1]]);
   }
+  const last = result[result.length - 1];
   return result;
 }
 
