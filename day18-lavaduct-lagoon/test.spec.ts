@@ -23,15 +23,15 @@ U 2 (#caa171)
 R 2 (#7807d2)
 U 3 (#a77fa3)
 L 2 (#015232)
-U 2 (#7a21e3
+U 2 (#7a21e3)
 `
 describe('Get area', () => {
   test('Test1', () => {
-    const result = solve18(input1);
+    const result = solve18(input1, 1);
     expect(result).toBe(21);
   })
   test('Test2', () => {
-    const result = solve18(input2);
+    const result = solve18(input2, 1);
     expect(result).toBe(62);
   })
 })
@@ -39,7 +39,7 @@ describe('Get area', () => {
 describe('Test big data', () => {
   test('Big data', async () => {
     const data = await getData();
-    const result = solve18(data);
+    const result = solve18(data, 1);
     expect(result).toBe(35401);
   })
 })
@@ -49,3 +49,15 @@ async function getData() {
   const result = await readFile(file, { encoding: 'utf-8' });
   return result;
 }
+
+describe('Test part 2', () => {
+  test('test 1', () => {
+    const result = solve18(input2, 2);
+    expect(result).toBe(952408144115)
+  })
+  test('test big data', async () => {
+    const data = await getData();
+    const result = solve18(data, 2);
+    expect(result).toBe(48020869073824);
+  })
+})
