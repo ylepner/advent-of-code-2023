@@ -17,11 +17,12 @@ export function solve18(input: string) {
 }
 
 function parse(str: string): [Direction, number][] {
-  const result: [Direction, number][] = str.trim().split('\n').map(el => el.split(' ')[0] + el.split(' ')[1]).map(el => {
-    const direction = el[0] as Direction;
-    const steps: number = Number(el[1]);
+  const result: [Direction, number][] = str.trim().split('\n').map(el => {
+    const split = el.split(' ');
+    const direction = split[0] as Direction;
+    const steps: number = Number(split[1]);
     return [direction, steps];
-  });
+  })
 
   return result;
 }
