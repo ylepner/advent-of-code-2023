@@ -40,7 +40,7 @@ describe('Test big data', () => {
   test('Big data', async () => {
     const data = await getData();
     const result = solve18(data);
-    expect(result).toBeLessThan(36142.5);
+    expect(result).toBe(35401);
   })
 })
 

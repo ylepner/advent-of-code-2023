@@ -1,34 +1,42 @@
+type Direction = 'L' | 'R' | 'U' | 'D';
+
+const movesTo: { [p in Direction]: [number, number] } = {
+  R: [1, 0],
+  U: [0, -1],
+  L: [-1, 0],
+  D: [0, 1]
+};
+
 export function solve18(input: string) {
-  const data = parse(input);
+  const data: [Direction, number][] = parse(input);
   const vertexes = getPoints(data);
   const area = getArea(vertexes);
-  const perimeter = getPerimeter(vertexes);
+  const perimeter = getPerimeter(data);
   const result = area + perimeter / 2 + 1;
   return result;
 }
 
-function parse(str: string) {
-  return str.trim().split('\n').map(el => el.split(' ')[0] + el.split(' ')[1])
+function parse(str: string): [Direction, number][] {
+  const result: [Direction, number][] = str.trim().split('\n').map(el => el.split(' ')[0] + el.split(' ')[1]).map(el => {
+    const direction = el[0] as Direction;
+    const steps: number = Number(el[1]);
+    return [direction, steps];
+  });
+
+  return result;
 }
 
-function getPoints(instructions: string[]) {
+function getPoints(instructions: [Direction, number][]) {
   let startX = 0;
   let startY = 0;
   let result: [number, number][] = [];
   result.push([startX, startY]);
-  for (let instruction of instructions) {
-    if (instruction[0] === 'R') {
-      startX += Number(instruction[1]);
-    };
-    if (instruction[0] === 'L') {
-      startX -= Number(instruction[1]);
-    };
-    if (instruction[0] === 'D') {
-      startY += Number(instruction[1]);
-    };
-    if (instruction[0] === 'U') {
-      startY -= Number(instruction[1]);
-    }
+  for (let i = 1; i < instructions.length; i++) {
+    const lastEl = instructions.at(-i)!;
+    const dir = lastEl[0];
+    const dirCoord: [number, number] = movesTo[dir];
+    startX = startX + lastEl[1] * dirCoord[0];
+    startY = startY + lastEl[1] * dirCoord[1];
     result.push([startX, startY]);
   }
   return result;
@@ -47,16 +55,11 @@ function getArea(points: [number, number][]): number {
     right += points[i][1] * points[i + 1][0]
   }
 
-  area = Math.abs((left - right) / 2);
+  area = Math.abs((right - left) / 2);
   return area;
 }
 
-function getPerimeter(points: [number, number][]) {
-  let perimeter = 0;
-  for (let i = 0; i < points.length - 1; i++) {
-    const dx = points[i][0] - points[i + 1][0];
-    const dy = points[i][1] - points[i + 1][1];
-    perimeter += Math.sqrt(dx * dx + dy * dy);
-  }
+function getPerimeter(data: [Direction, number][]) {
+  const perimeter = data.map(el => Number(el[1])).reduce((a, b) => a + b);
   return perimeter;
 }
