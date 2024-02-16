@@ -1,11 +1,11 @@
 type Option = 'more' | 'less' | 'whatever';
 
-type Result = Redirect | Accepted | Rejected | Whatever;
+type Result = Redirect | Accepted | Rejected;
 
 
 interface Context {
   currentLineId: string;
-  lines: Record<string, Condition[]>;
+  lines: Record<string, Step[]>;
 }
 
 interface Item {
@@ -34,12 +34,15 @@ interface Whatever {
 }
 
 interface Condition {
-  type: 'condition' | 'whatever';
-  what?: keyof Item;
-  than?: number;
-  op?: Option;
+  type: 'condition';
+  what: keyof Item;
+  than: number;
+  op: Option;
   result: Result;
 }
+
+type Step = Whatever | Condition;
+
 
 
 export function solve19() {
@@ -47,15 +50,15 @@ export function solve19() {
 }
 
 export function parseWorkflows(input: string) {
-  let lines: Record<string, Condition[]> = {};
+  let lines: Record<string, Step[]> = {};
   input.trim().split('\n').map(string => {
     const key = string.split('{')[0];
     const conditions = string.split('{')[1].split(',').map(el => el.split(':'));
-    let conditionsArray: Condition[] = [];
+    let conditionsArray: Step[] = [];
     for (let condition of conditions) {
       const what = condition[0][0] as keyof Item;
       const than = Number(condition[0].slice(2));
-      let result: Result;
+      let step: Step;
       let op: Option;
       if (condition[0][1] === '<') {
         op = 'less';
@@ -63,10 +66,11 @@ export function parseWorkflows(input: string) {
         op = 'more';
       } else {
         op = 'whatever';
-        result = { type: 'whatever', result: { type: 'redirect', lineId: condition[0].slice(0, -1) } } as Whatever;
-        conditionsArray.push(result);
+        step = { type: 'whatever', result: { type: 'redirect', lineId: condition[0].slice(0, -1) } };
+        conditionsArray.push(step);
         break;
       };
+      let result: Result;
       if (condition[condition.length - 1] === 'A') {
         result = { type: 'accepted' };
       } else if (condition[condition.length - 1] === 'R') {
@@ -88,15 +92,15 @@ export function parseWorkflows(input: string) {
   return lines;
 }
 
+
 export function parseRatings(input: string) {
-  // {x=787,m=2655,a=1222,s=2876}
-  const result = input.trim().split('\n').map(line => {
-    return line.trim().slice(1, line.length - 1).split(',').map(el => el.trim().split('=')).map(el => {
-      const key: string = el[0];
-      return {
-        [el[0]]: el[1],
-      };
-    });
-  });
+  const result = input.trim().split('\n').map(parseRating);
   return result;
+}
+
+export function parseRating(line: string): Item {
+  const entries = line.trim().slice(1, line.length - 1).split(',').map(el => el.trim().split('=')).map(el => {
+    return [el[0], el[1]] as const
+  });
+  return Object.fromEntries(entries) as any;
 }

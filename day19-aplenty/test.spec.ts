@@ -14,7 +14,7 @@ describe('Day 19, https://adventofcode.com/2023/day/19', () => {
 const workflows = `
 px{a<2006:qkq,m>2090:A,rfg}
 pv{a>1716:R,A}
-lnx{m>1548:A,A}
+lnx{m>1548:A,sA}
 rfg{s<537:gd,x>2440:R,A}
 qs{s>3448:A,lnx}
 qkq{x<1416:A,crn}
