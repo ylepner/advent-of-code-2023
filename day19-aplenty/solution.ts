@@ -46,7 +46,7 @@ export function solve19() {
 
 }
 
-export function parseLines(input: string) {
+export function parseWorkflows(input: string) {
   let lines: Record<string, Condition[]> = {};
   input.trim().split('\n').map(string => {
     const key = string.split('{')[0];
@@ -86,4 +86,17 @@ export function parseLines(input: string) {
     lines[key] = conditionsArray;
   })
   return lines;
+}
+
+export function parseRatings(input: string) {
+  // {x=787,m=2655,a=1222,s=2876}
+  const result = input.trim().split('\n').map(line => {
+    return line.trim().slice(1, line.length - 1).split(',').map(el => el.trim().split('=')).map(el => {
+      const key: string = el[0];
+      return {
+        [el[0]]: el[1],
+      };
+    });
+  });
+  return result;
 }
