@@ -1,4 +1,6 @@
-type Option = 'more' | 'less' | 'whatever';
+import { EOL } from "os";
+
+type Option = 'more' | 'less';
 
 type Result = Redirect | Accepted | Rejected;
 
@@ -30,7 +32,7 @@ interface Rejected {
 
 interface Whatever {
   type: 'whatever';
-  result: Redirect;
+  result: Result;
 }
 
 interface Condition {
@@ -43,41 +45,105 @@ interface Condition {
 
 type Step = Whatever | Condition;
 
+export function solve19(data: string) {
+  const splitted = data.split(`\n\n`);
+  const conditions = parseWorkflows(splitted[0]);
+  const items = parseRatings(splitted[1]);
+  return processAll(conditions, items);
+}
 
+export function processAll(conditions: Record<string, Step[]>, items: Item[]) {
+  const result = items.filter(item => process(conditions, item));
+  const reduce = result.reduce((acc, b) => acc + Number(b.x) + Number(b.m) + Number(b.a) + Number(b.s), 0);
+  return reduce;
+}
 
-export function solve19() {
+export function process(conditions: Record<string, Step[]>, item: Item): boolean {
+  let lineId = 'in';
+  const test = conditions[lineId];
+  let currentConditionIndex = 0;
+  while (true) {
 
+    const line = conditions[lineId];
+    if (!line) {
+      throw new Error(`Impossible line ${lineId}`)
+    }
+
+    const condition = conditions[lineId][currentConditionIndex];
+    const result = processStep(condition, item);
+    if (!result) {
+      currentConditionIndex += 1;
+      continue;
+    }
+    if (result.type === 'accepted') {
+      return true;
+    } else if (result.type === 'rejected') {
+      return false;
+    } else if (result.type === 'redirect') {
+      lineId = result.lineId;
+      currentConditionIndex = 0;
+    };
+  }
+}
+
+export function processStep(step: Step, item: Item): Result | null {
+  if (step.type === "whatever") {
+    return step.result;
+  }
+  let number = step.than;
+  if ((step.op === 'less' && item[step.what] < number) || (step.op === 'more' && item[step.what] > number)) {
+    return step.result;
+  } else {
+    return null;
+  }
 }
 
 export function parseWorkflows(input: string) {
   let lines: Record<string, Step[]> = {};
   input.trim().split('\n').map(string => {
     const key = string.split('{')[0];
-    const conditions = string.split('{')[1].split(',').map(el => el.split(':'));
+    const conditions = string.split('{')[1].split(',');
     let conditionsArray: Step[] = [];
     for (let condition of conditions) {
-      const what = condition[0][0] as keyof Item;
-      const than = Number(condition[0].slice(2));
-      let step: Step;
+      let result: Result;
+      if (condition[condition.length - 1] === '}') {
+        let resultOfWhatever: Result;
+        if (condition.slice(0, -1) === 'A') {
+          resultOfWhatever = { type: 'accepted' };
+        } else if (condition.slice(0, -1) === 'R') {
+          resultOfWhatever = { type: 'rejected' };
+        } else {
+          resultOfWhatever = { type: 'redirect', lineId: condition.slice(0, -1) }
+        };
+        const whateverResult: Whatever = {
+          type: "whatever",
+          result: resultOfWhatever,
+        }
+        conditionsArray.push(whateverResult);
+        break;
+      }
+      const split = condition.trim().split(':');
+      const what = split[0][0] as keyof Item;
+      const than = Number(split[0].slice(2));
+      const nextStep = split[1];
       let op: Option;
-      if (condition[0][1] === '<') {
+
+      if (split[0][1] === '<') {
         op = 'less';
-      } else if (condition[0][1] === '>') {
+      } else if (split[0][1] === '>') {
         op = 'more';
       } else {
-        op = 'whatever';
-        step = { type: 'whatever', result: { type: 'redirect', lineId: condition[0].slice(0, -1) } };
-        conditionsArray.push(step);
-        break;
-      };
-      let result: Result;
-      if (condition[condition.length - 1] === 'A') {
+        throw new Error('Option error!')
+      }
+
+      if (nextStep === 'A') {
         result = { type: 'accepted' };
-      } else if (condition[condition.length - 1] === 'R') {
+      } else if (nextStep === 'R') {
         result = { type: 'rejected' };
       } else {
-        result = { type: 'redirect', lineId: condition[1] }
-      }
+        result = { type: 'redirect', lineId: nextStep }
+      };
+
       const conditionResult: Condition = {
         type: 'condition',
         what: what,
