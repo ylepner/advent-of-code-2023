@@ -46,7 +46,7 @@ interface Condition {
 type Step = Whatever | Condition;
 
 export function solve19(data: string) {
-  const splitted = data.split(`\n\n`);
+  const splitted = data.split(/\n\s*\n/);
   const conditions = parseWorkflows(splitted[0]);
   const items = parseRatings(splitted[1]);
   return processAll(conditions, items);
@@ -102,19 +102,11 @@ export function parseWorkflows(input: string) {
   let lines: Record<string, Step[]> = {};
   input.trim().split('\n').map(string => {
     const key = string.split('{')[0];
-    const conditions = string.split('{')[1].split(',');
+    const conditions = string.trim().split('{')[1].trim().split(',');
     let conditionsArray: Step[] = [];
     for (let condition of conditions) {
-      let result: Result;
       if (condition[condition.length - 1] === '}') {
-        let resultOfWhatever: Result;
-        if (condition.slice(0, -1) === 'A') {
-          resultOfWhatever = { type: 'accepted' };
-        } else if (condition.slice(0, -1) === 'R') {
-          resultOfWhatever = { type: 'rejected' };
-        } else {
-          resultOfWhatever = { type: 'redirect', lineId: condition.slice(0, -1) }
-        };
+        let resultOfWhatever: Result = getResult(condition.slice(0, -1));
         const whateverResult: Whatever = {
           type: "whatever",
           result: resultOfWhatever,
@@ -136,13 +128,7 @@ export function parseWorkflows(input: string) {
         throw new Error('Option error!')
       }
 
-      if (nextStep === 'A') {
-        result = { type: 'accepted' };
-      } else if (nextStep === 'R') {
-        result = { type: 'rejected' };
-      } else {
-        result = { type: 'redirect', lineId: nextStep }
-      };
+      let result: Result = getResult(nextStep);
 
       const conditionResult: Condition = {
         type: 'condition',
@@ -158,6 +144,18 @@ export function parseWorkflows(input: string) {
   return lines;
 }
 
+function getResult(condition: string) {
+  let result: Result;
+  if (condition === 'A') {
+    result = { type: 'accepted' };
+  } else if (condition === 'R') {
+    result = { type: 'rejected' };
+  } else {
+    result = { type: 'redirect', lineId: condition }
+  };
+  return result;
+}
+
 
 export function parseRatings(input: string) {
   const result = input.trim().split('\n').map(parseRating);
@@ -165,7 +163,8 @@ export function parseRatings(input: string) {
 }
 
 export function parseRating(line: string): Item {
-  const entries = line.trim().slice(1, line.length - 1).split(',').map(el => el.trim().split('=')).map(el => {
+  line = line.trim();
+  const entries = line.slice(1, line.length - 1).split(',').map(el => el.trim().split('=')).map(el => {
     return [el[0], el[1]] as const
   });
   return Object.fromEntries(entries) as any;

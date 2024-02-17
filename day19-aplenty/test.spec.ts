@@ -1,3 +1,5 @@
+import { readFile } from "fs/promises";
+import path from "path";
 import { parseRatings, parseWorkflows, solve19 } from "./solution";
 
 describe('Day 19, https://adventofcode.com/2023/day/19', () => {
@@ -10,7 +12,20 @@ describe('Day 19, https://adventofcode.com/2023/day/19', () => {
     console.log(result);
   });
   test('should return number', () => {
-    const result = solve19(`
+    const result = solve19(data);
+    expect(result).toBe(19114);
+  })
+})
+
+describe('Test big data', () => {
+  test('Should return number', async () => {
+    const data = await getData();
+    const result = solve19(data);
+    expect(result).toBe(446517);
+  })
+})
+
+const data = `
 px{a<2006:qkq,m>2090:A,rfg}
 pv{a>1716:R,A}
 lnx{m>1548:A,A}
@@ -27,10 +42,8 @@ hdj{m>838:A,pv}
 {x=1679,m=44,a=2067,s=496}
 {x=2036,m=264,a=79,s=2244}
 {x=2461,m=1339,a=466,s=291}
-{x=2127,m=1623,a=2188,s=1013}`.trim());
-    expect(result).toBe(19114);
-  })
-})
+{x=2127,m=1623,a=2188,s=1013}
+`
 
 const workflows = `
 px{a<2006:qkq,m>2090:A,rfg}
@@ -52,3 +65,8 @@ const ratings = `
 {x=2461,m=1339,a=466,s=291}
 {x=2127,m=1623,a=2188,s=1013}
 `
+async function getData() {
+  const file = path.join(__dirname, 'data.txt');
+  const result = await readFile(file, { encoding: 'utf-8' });
+  return result;
+}
