@@ -8,9 +8,21 @@ broadcaster -> a, b, c
 &inv -> a
 `
 
+const test2 = `
+broadcaster -> a
+%a -> inv, con
+&inv -> b
+%b -> con
+&con -> output
+`
+
 describe('Day 20, https://adventofcode.com/2023/day/20', () => {
-  test('Should convert data to Connections', () => {
+  test('Should convert data to Connections Test 1', () => {
     const result = convertData(test1);
+    expect(result).toBeDefined();
+  })
+  test('Should convert data to Connections Test 2', () => {
+    const result = convertData(test2);
     expect(result).toBeDefined();
   })
 })
