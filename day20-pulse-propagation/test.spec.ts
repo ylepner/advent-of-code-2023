@@ -1,4 +1,4 @@
-import { convertData } from "./solution";
+import { convertData, solve20 } from "./solution";
 
 const test1 = `
 broadcaster -> a, b, c
@@ -24,6 +24,10 @@ describe('Day 20, https://adventofcode.com/2023/day/20', () => {
   test('Should convert data to Connections Test 2', () => {
     const result = convertData(test2);
     expect(result).toBeDefined();
+  })
+  test('Test function sent pulse', () => {
+    const result = solve20(test1);
+    console.log(result);
   })
 })
 
