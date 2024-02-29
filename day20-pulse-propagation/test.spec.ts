@@ -1,4 +1,4 @@
-import { convertData, solve20 } from "./solution";
+import { convertData, solve20 } from "./solution2";
 
 const test1 = `
 broadcaster -> a, b, c
@@ -15,6 +15,7 @@ broadcaster -> a
 %b -> con
 &con -> output
 `
+
 
 describe('Day 20, https://adventofcode.com/2023/day/20', () => {
   test('Should convert data to Connections Test 1', () => {
