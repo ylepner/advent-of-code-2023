@@ -9,10 +9,10 @@ interface Module {
   memory: string | ModuleMemory;
 }
 
-const modules: { [key: string]: Module } = {};
-let broadcastTargets: string[] = [];
 
 export function solve(input: string) {
+  const modules: { [key: string]: Module } = {};
+  let broadcastTargets: string[] = [];
   const lines = input.trim().split('\n').map(line => line.trim());
   let memory;
   for (const line of lines) {

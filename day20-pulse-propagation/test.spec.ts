@@ -19,15 +19,16 @@ broadcaster -> a
 `
 
 
+
 describe('Day 20, https://adventofcode.com/2023/day/20', () => {
   test('Should get result test 1', () => {
     const result = solve(test1);
     expect(result).toBe(32000000);
   })
-  // test('Should get result test 2', () => {
-  //   const result = solve(test2);
-  //   expect(result).toBe(11687500);
-  // })
+  test('Should get result test 2', () => {
+    const result = solve(test2);
+    expect(result).toBe(11687500);
+  })
   test('Test big data', async () => {
     const data = await getData();
     const result = solve(data);
