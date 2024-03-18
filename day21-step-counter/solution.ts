@@ -7,22 +7,21 @@ const directions: { [p in Direction]: [number, number] } = {
   RIGHT: [0, -1]
 };
 
-export function solve21(input: string) {
+export function solve21(input: string, steps: number) {
   const grid = parse(input);
   const start: [number, number] = getStartCoordinates(grid);
   const result = [];
-  let stepsAmount = 6;
   let visited: [number, number][] = [start];
-  let queue: [number, number, number][] = [[start[0], start[1], stepsAmount]];
+  let queue: [number, number, number][] = [[start[0], start[1], steps]];
   let row = 0;
   let col = 0;
 
   while (queue.length) {
-    const [x, y, steps] = queue.shift()!;
-    if (steps % 2 === 0) {
+    const [x, y, stepsLeft] = queue.shift()!;
+    if (stepsLeft % 2 === 0) {
       result.push([x, y]);
     }
-    if (steps === 0) {
+    if (stepsLeft === 0) {
       continue
     }
     for (let direction of Object.entries(directions)) {
@@ -33,7 +32,7 @@ export function solve21(input: string) {
           row = newRow;
           col = newCol;
           visited.push([row, col]);
-          queue.push([row, col, steps - 1]);
+          queue.push([row, col, stepsLeft - 1]);
         }
       } else {
         continue;
