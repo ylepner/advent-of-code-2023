@@ -15,13 +15,13 @@ const input = `
 describe('Day 22, https://adventofcode.com/2023/day/22', () => {
   test('Should get result test 1', () => {
     const result = solve22(input);
-    expect(result).toBe(0);
+    expect(result).toBe(5);
   })
-  // test('Big data', async () => {
-  //   const data = await getData();
-  //   const result = solve22(data);
-  //   expect(result).toBe(0);
-  // })
+  test('Big data', async () => {
+    const data = await getData();
+    const result = solve22(data);
+    expect(result).toBe(413);
+  })
 })
 
 async function getData() {
