@@ -28,11 +28,11 @@ export function solve22(input: string) {
 
   bricks.sort((a, b) => a[2] - b[2]);
 
-  const k_supports_v: { [key: number]: Set<number> } = {};
-  const v_supports_k: { [key: number]: Set<number> } = {};
+  const lowerSupportsUpper: { [key: number]: Set<number> } = {};
+  const upperSupportLower: { [key: number]: Set<number> } = {};
   for (let i = 0; i < bricks.length; i++) {
-    k_supports_v[i] = new Set();
-    v_supports_k[i] = new Set();
+    lowerSupportsUpper[i] = new Set();
+    upperSupportLower[i] = new Set();
   }
 
   for (let j = 0; j < bricks.length; j++) {
@@ -40,18 +40,18 @@ export function solve22(input: string) {
     for (let i = 0; i < j; i++) {
       const lower = bricks[i];
       if (ifOverlaps(lower, upper) && upper[2] === lower[5] + 1) {
-        k_supports_v[i].add(j);
-        v_supports_k[j].add(i);
+        lowerSupportsUpper[i].add(j);
+        upperSupportLower[j].add(i);
       }
     }
   }
 
-  let total = 0;
+  let result = 0;
   for (let i = 0; i < bricks.length; i++) {
-    if (Array.from(k_supports_v[i]).every(j => v_supports_k[j].size >= 2)) {
-      total++;
+    if (Array.from(lowerSupportsUpper[i]).every(j => upperSupportLower[j].size >= 2)) {
+      result++;
     }
   }
 
-  return total;
+  return result;
 }
